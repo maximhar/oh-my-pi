@@ -364,7 +364,7 @@ export class SelectorController {
 				this.ctx.settings,
 				this.ctx.session.modelRegistry,
 				this.ctx.session.scopedModels,
-				async (model, role) => {
+				async (model, role, thinkingMode) => {
 					try {
 						if (role === null) {
 							// Temporary: update agent state but don't persist to settings
@@ -377,6 +377,9 @@ export class SelectorController {
 						} else if (role === "default") {
 							// Default: update agent state and persist
 							await this.ctx.session.setModel(model, role);
+							if (thinkingMode && thinkingMode !== "default") {
+								this.ctx.session.setThinkingLevel(thinkingMode as ThinkingLevel);
+							}
 							this.ctx.statusLine.invalidate();
 							this.ctx.updateEditorBorderColor();
 							this.ctx.showStatus(`Default model: ${model.id}`);
