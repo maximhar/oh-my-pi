@@ -14,13 +14,14 @@ function expectAttribution(message: Message | undefined, expected: "user" | "age
 }
 
 describe("convertToLlm custom message mapping", () => {
-	it("maps async-result custom messages to developer role", () => {
+	it("uses async-result attribution without special role mapping", () => {
 		const messages: AgentMessage[] = [
 			{
 				role: "custom",
 				customType: "async-result",
 				content: "Background task completed",
 				display: true,
+				attribution: "agent",
 				timestamp: Date.now(),
 			},
 		];
@@ -28,8 +29,8 @@ describe("convertToLlm custom message mapping", () => {
 		const converted = convertToLlm(messages);
 
 		expect(converted).toHaveLength(1);
-		expect(converted[0]?.role).toBe("developer");
-		expectAttribution(converted[0], undefined);
+		expect(converted[0]?.role).toBe("user");
+		expectAttribution(converted[0], "agent");
 		expect(inferCopilotInitiator(converted)).toBe("agent");
 	});
 
