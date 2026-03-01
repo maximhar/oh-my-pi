@@ -76,6 +76,24 @@ describe("buildSessionContext", () => {
 			expect(ctx.messages[0].role).toBe("user");
 		});
 
+		it("rehydrates custom_message attribution from entries", () => {
+			const entries: SessionEntry[] = [
+				{
+					type: "custom_message",
+					id: "1",
+					parentId: null,
+					timestamp: "2025-01-01T00:00:00Z",
+					customType: "skill-prompt",
+					content: "Summarize this file",
+					display: true,
+					attribution: "user",
+				},
+			];
+			const ctx = buildSessionContext(entries);
+			expect(ctx.messages).toHaveLength(1);
+			expect((ctx.messages[0] as any).role).toBe("custom");
+			expect((ctx.messages[0] as any).attribution).toBe("user");
+		});
 		it("simple conversation", () => {
 			const entries: SessionEntry[] = [
 				msg("1", null, "user", "hello"),
