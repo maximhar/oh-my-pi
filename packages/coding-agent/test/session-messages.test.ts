@@ -4,7 +4,7 @@ import type { Message } from "@oh-my-pi/pi-ai";
 import { inferCopilotInitiator } from "@oh-my-pi/pi-ai/providers/github-copilot-headers";
 import { convertToLlm } from "@oh-my-pi/pi-coding-agent/session/messages";
 
-function expectAttribution(message: Message | undefined, expected: "user" | "agent"): void {
+function expectAttribution(message: Message | undefined, expected: "user" | "agent" | undefined): void {
 	expect(message).toBeDefined();
 	if (!message) return;
 	if (message.role === "assistant") {
@@ -12,6 +12,7 @@ function expectAttribution(message: Message | undefined, expected: "user" | "age
 	}
 	expect(message.attribution).toBe(expected);
 }
+
 describe("convertToLlm custom message mapping", () => {
 	it("maps async-result custom messages to developer role", () => {
 		const messages: AgentMessage[] = [
@@ -28,17 +29,37 @@ describe("convertToLlm custom message mapping", () => {
 
 		expect(converted).toHaveLength(1);
 		expect(converted[0]?.role).toBe("developer");
-		expectAttribution(converted[0], "agent");
+		expectAttribution(converted[0], undefined);
 		expect(inferCopilotInitiator(converted)).toBe("agent");
 	});
 
-	it("defaults non-user custom messages to agent attribution", () => {
+	it("preserves missing attribution for legacy custom messages", () => {
+		const messages: AgentMessage[] = [
+			{
+				role: "custom",
+				customType: "skill-prompt",
+				content: "Run this skill with my arguments",
+				display: true,
+				timestamp: Date.now(),
+			},
+		];
+
+		const converted = convertToLlm(messages);
+
+		expect(converted).toHaveLength(1);
+		expect(converted[0]?.role).toBe("user");
+		expectAttribution(converted[0], undefined);
+		expect(inferCopilotInitiator(converted)).toBe("user");
+	});
+
+	it("uses explicit agent attribution for custom messages", () => {
 		const messages: AgentMessage[] = [
 			{
 				role: "custom",
 				customType: "ttsr-injection",
 				content: "<system-reminder>Read file</system-reminder>",
 				display: false,
+				attribution: "agent",
 				timestamp: Date.now(),
 			},
 		];
