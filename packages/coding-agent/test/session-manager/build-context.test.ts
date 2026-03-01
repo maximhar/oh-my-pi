@@ -91,8 +91,10 @@ describe("buildSessionContext", () => {
 			];
 			const ctx = buildSessionContext(entries);
 			expect(ctx.messages).toHaveLength(1);
-			expect((ctx.messages[0] as any).role).toBe("custom");
-			expect((ctx.messages[0] as any).attribution).toBe("user");
+			const customMessage = ctx.messages[0];
+			expect(customMessage?.role).toBe("custom");
+			if (customMessage?.role !== "custom") throw new Error("Expected custom message");
+			expect(customMessage.attribution).toBe("user");
 		});
 		it("preserves missing custom_message attribution on rehydration", () => {
 			const entries: SessionEntry[] = [
@@ -108,8 +110,10 @@ describe("buildSessionContext", () => {
 			];
 			const ctx = buildSessionContext(entries);
 			expect(ctx.messages).toHaveLength(1);
-			expect((ctx.messages[0] as any).role).toBe("custom");
-			expect((ctx.messages[0] as any).attribution).toBeUndefined();
+			const customMessage = ctx.messages[0];
+			expect(customMessage?.role).toBe("custom");
+			if (customMessage?.role !== "custom") throw new Error("Expected custom message");
+			expect(customMessage.attribution).toBeUndefined();
 		});
 		it("simple conversation", () => {
 			const entries: SessionEntry[] = [

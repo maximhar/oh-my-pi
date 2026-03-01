@@ -57,7 +57,7 @@ describe("AgentSession before_agent_start attribution fallback", () => {
 		tempDir.removeSync();
 	});
 
-	function createSession(): { emitBeforeAgentStart: ReturnType<typeof vi.fn> } {
+	function createSession() {
 		const emitBeforeAgentStart = vi.fn().mockResolvedValue({
 			messages: [
 				{
