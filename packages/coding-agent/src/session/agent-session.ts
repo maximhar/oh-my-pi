@@ -2041,6 +2041,8 @@ export class AgentSession {
 					this.#baseSystemPrompt,
 				);
 				if (result?.messages) {
+					const promptAttribution: "user" | "agent" | undefined =
+						"attribution" in message ? message.attribution : undefined;
 					for (const msg of result.messages) {
 						messages.push({
 							role: "custom",
@@ -2048,7 +2050,7 @@ export class AgentSession {
 							content: msg.content,
 							display: msg.display,
 							details: msg.details,
-							attribution: msg.attribution,
+							attribution: msg.attribution ?? promptAttribution ?? (message.role === "user" ? "user" : "agent"),
 							timestamp: Date.now(),
 						});
 					}
